@@ -1,12 +1,11 @@
 import axios from "axios";
 import { LOGIN, REGISTER } from "../utils/routes.util";
 
-const API_URL = "http://localhost:3000/";
+const API_URL = process.env.REACT_APP_API_ENDPOINT;
 
 class AuthorizationService {
     
     login(email, password) {
-
         return axios
             .post(API_URL + LOGIN, { email, password })
             .then((response) => {

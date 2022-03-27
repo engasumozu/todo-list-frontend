@@ -3,7 +3,7 @@ import authHeader from '../utils/token-header.util';
 import getUserId from "../utils/user.util";
 import { BY_USER, TODO_BASE } from "../utils/routes.util";
 
-const API_URL = 'http://localhost:3000/';
+const API_URL = process.env.REACT_APP_API_ENDPOINT;
 
 const config = {
     headers: authHeader()
