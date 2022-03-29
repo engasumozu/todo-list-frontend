@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+    prod:
+        container_name: todo_react_app
+        image: todo_react_app:1.0.0
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        ports:
+            - 3001:3001
+            - 80:80
+        networks:
+            - todo-app-network
+        volumes:
+            - .:/usr/share/nginx/html
+            - /usr/src/app/node_modules
+        restart: unless-stopped
+
+networks:
+    todo-app-network:

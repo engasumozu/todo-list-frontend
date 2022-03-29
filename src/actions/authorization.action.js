@@ -15,17 +15,18 @@ export const registerAction = (email, password) => (dispatch) => {
         .register(email, password)
         .then(
             (response) => {
+                console.log(response)
                 dispatch({
                     type: REGISTER_OK
                 });
                 dispatch({
                     type: SET_MESSAGE,
-                    payload: response.data.message
+                    payload: response.statusText
                 });
                 return Promise.resolve();
             },
             (error) => {
-                const message = error.toString();
+                const message = error.response.data.message ?? "Error";
                 dispatch({
                     type: REGISTER_FAIL
                 });
@@ -52,7 +53,7 @@ export const loginAction = (email, password) => (dispatch) => {
                 return Promise.resolve();
             },
             (error) => {
-                const message = error.response.data.message;
+                const message = error.response.data.message ?? "Error";
                 dispatch({
                     type: LOGIN_FAIL,
                 });
@@ -65,7 +66,7 @@ export const loginAction = (email, password) => (dispatch) => {
         );
 }
 
-export const logout = () => (dispatch) => {
+export const logoutAction = () => (dispatch) => {
     AuthorizationService.logout();
     dispatch({
         type: LOGOUT,

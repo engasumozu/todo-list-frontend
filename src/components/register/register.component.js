@@ -1,41 +1,45 @@
 import React, { Component } from "react";
-import { TextField, Button, Card, CardMedia, CardContent, Alert } from "@mui/material";
+import { TextField, Button, Card, CardMedia, CardContent, Alert, Typography } from "@mui/material";
 import { connect } from "react-redux";
-import { loginAction } from "../../actions/authorization.action";
+import { registerAction } from "../../actions/authorization.action";
 import { TODO_LOGO } from "../../utils/logo.util";
 import { Navigate } from "react-router-dom";
+import NavigateTo from "../navigate-to/navigate-to.component";
 
 import '../../App.css';
 import './register.css';
 
-class Login extends Component {
+const user = JSON.parse(localStorage.getItem("user"));
+
+class Register extends Component {
     constructor(props) {
         super(props);
         this.state = {
             email: {
                 value: "",
-                touched: "",
                 isValid: true
             },
             password: {
                 value: "",
-                touched: "",
+                isValid: true
+            },
+            passwordKey: {
+                value: "",
                 isValid: true
             },
             loading: false
         };
 
-        this.onLogin = this.onLogin.bind(this);
+        this.onRegister = this.onRegister.bind(this);
         this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
-
+        this.onChangePasswordKey = this.onChangePasswordKey.bind(this);
     };
 
     onChangeEmail(e) {
         this.setState({
             email: {
                 value: e.target.value,
-                touched: true,
                 isValid: true
             }
         });
@@ -45,13 +49,31 @@ class Login extends Component {
         this.setState({
             password: {
                 value: e.target.value,
-                touched: true,
                 isValid: true
             }
         });
     }
 
-    onLogin(e) {
+    onChangePasswordKey(e) {
+        if (e.target.value === this.state.password.value) {
+            this.setState({
+                passwordKey: {
+                    value: e.target.value,
+                    isValid: true
+                }
+            });
+        }
+        else {
+            this.setState({
+                passwordKey: {
+                    value: e.target.value,
+                    isValid: false
+                }
+            });
+        }
+    }
+
+    onRegister(e) {
         e.preventDefault();
 
         this.setState({
@@ -60,17 +82,30 @@ class Login extends Component {
 
         this.isValid(this.state.email);
         this.isValid(this.state.password);
+        this.isValid(this.state.passwordKey);
 
         console.log(this.state);
-        if (this.state.email.isValid && this.state.password.isValid) {
+        if (this.state.email.isValid && this.state.password.isValid && this.state.passwordKey.isValid) {
             console.log("calling auth endpoint");
 
             const { dispatch, history } = this.props;
 
-            dispatch(loginAction(this.state.email.value, this.state.password.value))
+            dispatch(registerAction(this.state.email.value, this.state.password.value))
                 .then(() => {
-                    history.push("/profile");
-                    window.location.reload();
+                    this.setState({
+                        email: {
+                            value: "",
+                            isValid: false
+                        },
+                        password: {
+                            value: "",
+                            isValid: false
+                        },
+                        passwordKey: {
+                            value: "",
+                            isValid: false
+                        },
+                    });
                 })
                 .catch(() => {
                     this.setState({
@@ -84,18 +119,21 @@ class Login extends Component {
     }
 
     isValid(control) {
-        if (control.value === '') {
+        if (control.value === '' && !control.isValid) {
             control.isValid = false;
         }
     };
 
     render() {
         const { isLoggedIn, message } = this.props;
-        if (isLoggedIn) {
-            console.log("LoggedIn!!");
-            console.log(message);
-            //return <Navigate to="/profile" />;
+        console.log(isLoggedIn)
+        if (message === 'Created') {
+            return <Navigate to="/login" />;
         }
+        else if (isLoggedIn) {
+            return <Navigate to="/todo" />;
+        }
+
         return (
             <div>
                 <Card sx={{ maxWidth: 345 }}>
@@ -106,7 +144,7 @@ class Login extends Component {
                         className="App-logo"
                     />
                     <CardContent >
-                        <form onSubmit={this.onLogin} ref={(c => this.form = c)}>
+                        <form onSubmit={this.onRegister} ref={(c => this.form = c)}>
                             <span>
                                 <TextField id="email" label="Email"
                                     variant="standard"
@@ -128,16 +166,27 @@ class Login extends Component {
                                 </span>
                             </span>
                             <span>
-                                <Button type="submit" variant="contained" color="secondary" onClick={this.login}>Login</Button>
+                                <TextField id="password-key" label="Confirm password"
+                                    variant="standard" type="password"
+                                    value={this.state.passwordKey.value}
+                                    onChange={this.onChangePasswordKey}
+                                />
+                                <span>
+                                    {this.state.passwordKey.isValid ? '' : <Alert severity="error">Confirmation password doesn't match!</Alert>}
+                                </span>
+                            </span>
+                            <span>
+                                <Button type="submit" variant="contained" color="warning" onClick={this.login}>Register</Button>
                             </span>
                         </form>
                     </CardContent>
                 </Card>
                 <span>
-                    {(message == '' || message == undefined) ? '' : <Alert severity="warning">{message}</Alert>}
+                    {(message === '' || message === undefined) ? '' : <Alert severity="warning">{message}!</Alert>}
                 </span>
                 <span>
-                    <Button variant="contained" color="warning" >Register</Button>
+                    <Typography variant="body2" color="text.secondary">Already have an account?</Typography>
+                    <NavigateTo path={"/login"} color={"secondary"} label={"Login"}></NavigateTo>
                 </span>
             </div>
         );
@@ -152,4 +201,4 @@ function mapStateToProps(state) {
         message
     };
 }
-export default connect(mapStateToProps)(Login);     
+export default connect(mapStateToProps)(Register);     
