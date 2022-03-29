@@ -1,9 +1,20 @@
 import {
     TODO_READ,
-    TODO_READ_FAIL
+    TODO_READ_FAIL,
+    TODO_CREATE,
+    TODO_CREATE_FAIL,
+    TODO_DELETE,
+    TODO_DELETE_FAIL,
+    TODO_UPDATE,
+    TODO_UPDATE_FAIL
 } from "../utils/type.util";
 
-const initialState = { data: [] };
+const initialState = { 
+    data: [],
+    created: {},
+    updated: {},
+    deleted: {}
+};
 
 export default function (state = initialState, action) {
     const { type, payload } = action;
@@ -17,6 +28,16 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 data: {},
+            };
+        case TODO_CREATE:
+            return {
+                ...state,
+                created: payload,
+            };
+        case TODO_CREATE_FAIL:
+            return {
+                ...state,
+                created: {},
             };
         default:
             return state;

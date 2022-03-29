@@ -22,7 +22,7 @@ import { Logout } from "@mui/icons-material";
 
 import { logoutAction } from "../../actions/authorization.action";
 import { clearMessage } from "../../actions/message.action";
-import { getAllAction } from "../../actions/todo.action";
+import { getAllAction, createAction } from "../../actions/todo.action";
 
 import getDateNow from "../../utils/get-date-now.util";
 
@@ -59,7 +59,8 @@ class Todo extends Component {
         this.logOut = this.logOut.bind(this);
         this.onChangeDescription = this.onChangeDescription.bind(this);
         this.onChangeTodo = this.onChangeTodo.bind(this);
-        this.onChangePriority = this.onChangePriority.bind((this));
+        this.onChangePriority = this.onChangePriority.bind(this);
+        this.createTodo = this.createTodo.bind(this);
     };
 
     componentDidMount() {
@@ -109,16 +110,64 @@ class Todo extends Component {
         });
     }
 
+    createTodo(e) {
+        e.preventDefault();
+        let body = {
+            userId: this.props.user.user._id,
+            todo: this.state.todo.value,
+            description: this.state.description.value,
+            priority: this.state.priority.value,
+            when: this.state.when.value
+        }
+        this.props.dispatch(createAction(body))
+            .then(() => {
+                console.log(this.props.created.data);
+                let tempData = [...this.state.list.data];
+                console.log(tempData);
+                tempData.push(this.props.created.data);
+                console.log(tempData);
+                console.log(this.state.list.data);
+                this.setState({
+                    list: {
+                        data: tempData
+                    },
+                    todo: {
+                        value: "",
+                        touched: "",
+                        isValid: true
+                    },
+                    description: {
+                        value: "",
+                        touched: "",
+                        isValid: true
+                    },
+                    priority: {
+                        value: 1,
+                        touched: "",
+                        isValid: true
+                    },
+                    when: {
+                        value: getDateNow(),
+                        touched: "",
+                        isValid: true
+                    }
+                });
+                console.log(this.state.list.data);
+            })
+            .catch(() => {
+            });
+    }
+
     render() {
         const { isLoggedIn } = this.props;
         let todoList = [];
         if (this.state.list.data) {
-            console.log(this.state.list.data);
+            console.log(this.props);
             todoList = this.state.list.data.map(
-                (d) => <TodoCard key={d._id} title={d.todo} 
-                description={d.description} 
-                priority={d.priority}
-                when={d.when} 
+                (d) => <TodoCard key={d._id} title={d.todo}
+                    description={d.description}
+                    priority={d.priority}
+                    when={d.when}
                 />
             );
         }
@@ -151,7 +200,7 @@ class Todo extends Component {
                 <span className="span-out">
                     <Card sx={{ maxWidth: 500 }}>
                         <CardContent color="primary">
-                            <form onSubmit={this.onLogin} ref={(c => this.form = c)}>
+                            <form onSubmit={this.createTodo} ref={(c => this.form = c)}>
                                 <span className="span-form">
                                     <TextField id="title" label="Title"
                                         variant="standard"
@@ -196,10 +245,10 @@ class Todo extends Component {
                                         <MenuItem value={3}>High</MenuItem>
                                     </Select>
                                 </span>
+                                <Button type="submit" variant="contained" color="secondary">Save</Button>
                             </form>
                         </CardContent>
                         <CardActions>
-                            <Button type="submit" variant="contained" color="secondary" onClick={this.login}>Save</Button>
                         </CardActions>
                     </Card>
                 </span>
@@ -212,12 +261,12 @@ class Todo extends Component {
 function mapStateToProps(state) {
     const { user, isLoggedIn } = state.authorization;
     const { message } = state.message;
-    const { data } = state.todo
+    const { data, created } = state.todo
     return {
         isLoggedIn,
         user,
         message,
-        data
+        data, created
     };
 }
 export default connect(mapStateToProps)(Todo);

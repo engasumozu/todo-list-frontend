@@ -133,7 +133,7 @@ class Login extends Component {
                 </span>
               </span>
               <span>
-                <Button type="submit" variant="contained" color="secondary" onClick={this.login}>Login</Button>
+                <Button type="submit" variant="contained" color="secondary">Login</Button>
               </span>
             </form>
           </CardContent>

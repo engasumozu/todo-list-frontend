@@ -13,7 +13,7 @@ import getDateNow from "../../utils/get-date-now.util";
 
 const TodoCard = (props) => {
     const navigate = useNavigate();
-    const color = props.priority === 1 ? red : (props.priority === 2 ? yellow : green);
+    const color = props.priority === "1" ? red : (props.priority === "2" ? yellow : green);
 
     var date = new Date(props.when);
     var dateNow = getDateNow(date);
@@ -23,7 +23,7 @@ const TodoCard = (props) => {
             <span >
                 <Card sx={{ maxWidth: 500 }}>
                     <CardContent >
-                        <Avatar sx={{ bgcolor: color[700], width: 50, height: 50 }}>
+                        <Avatar sx={{ bgcolor: color[700], width: 30, height: 30 }}>
                             {props.priority.toString()}
                         </Avatar>
                         <Typography gutterBottom variant="h5" component="div">
