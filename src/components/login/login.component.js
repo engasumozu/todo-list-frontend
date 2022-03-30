@@ -1,14 +1,17 @@
 import React, { Component } from "react";
-import { TextField, Button, Card, CardMedia, CardContent, Alert } from "@mui/material";
+import { TextField, Button, Card, CardMedia, CardContent, Alert, Typography } from "@mui/material";
 import { connect } from "react-redux";
 import { loginAction } from "../../actions/authorization.action";
+import { clearMessage } from "../../actions/message.action";
 import { TODO_LOGO } from "../../utils/logo.util";
 import { Navigate } from "react-router-dom";
+import NavigateTo from "../navigate-to/navigate-to.component";
 
 import '../../App.css';
 import './login.css';
 
 class Login extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -30,6 +33,10 @@ class Login extends Component {
     this.onChangePassword = this.onChangePassword.bind(this);
 
   };
+
+  componentDidMount() {
+    this.props.dispatch(clearMessage());
+  }
 
   onChangeEmail(e) {
     this.setState({
@@ -61,15 +68,12 @@ class Login extends Component {
     this.isValid(this.state.email);
     this.isValid(this.state.password);
 
-    console.log(this.state);
     if (this.state.email.isValid && this.state.password.isValid) {
-      console.log("calling auth endpoint");
 
-      const { dispatch, history } = this.props;
+      const { dispatch } = this.props;
 
       dispatch(loginAction(this.state.email.value, this.state.password.value))
         .then(() => {
-          history.push("/profile");
           window.location.reload();
         })
         .catch(() => {
@@ -77,9 +81,6 @@ class Login extends Component {
             loading: false
           });
         });
-    }
-    else {
-      console.log("form invalid");
     }
   }
 
@@ -92,9 +93,7 @@ class Login extends Component {
   render() {
     const { isLoggedIn, message } = this.props;
     if (isLoggedIn) {
-      console.log(this.props);
-
-      //return <Navigate to="/profile" />;
+      return <Navigate to="/todo" />;
     }
     return (
       <div>
@@ -128,16 +127,17 @@ class Login extends Component {
                 </span>
               </span>
               <span>
-                <Button type="submit" variant="contained" color="secondary" onClick={this.login}>Login</Button>
+                <Button type="submit" variant="contained" color="secondary">Login</Button>
               </span>
             </form>
           </CardContent>
         </Card>
         <span>
-          {(message == '' || message == undefined) ? '' : <Alert severity="warning">{message}</Alert>}
+          {(message === '' || message === undefined) ? '' : <Alert severity="warning">{message}</Alert>}
         </span>
         <span>
-          <Button variant="contained" color="warning" >Register</Button>
+          <Typography variant="body2" color="text.secondary">New?</Typography>
+          <NavigateTo path={"/register"} color={"warning"} label={"Register"}></NavigateTo>
         </span>
       </div>
     );

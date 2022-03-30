@@ -15,12 +15,12 @@ class TodoService {
         return axios.get(API_URL + BY_USER + getUserId(), config);
     }
 
-    create() {
-        return axios.post(API_URL + TODO_BASE, {}, config);
+    create(body) {
+        return axios.post(API_URL + TODO_BASE, body, config);
     }
 
-    update(id) {
-        return axios.put(API_URL + TODO_BASE + id, {}, config);
+    update(id, body) {
+        return axios.put(API_URL + TODO_BASE + id, body, config);
     }
 
     delete(id) {
