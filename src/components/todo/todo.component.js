@@ -22,7 +22,7 @@ import { Logout } from "@mui/icons-material";
 
 import { logoutAction } from "../../actions/authorization.action";
 import { clearMessage } from "../../actions/message.action";
-import { getAllAction, createAction, updateAction } from "../../actions/todo.action";
+import { getAllAction, createAction, updateAction, deleteAction } from "../../actions/todo.action";
 
 import getDateNow from "../../utils/get-date-now.util";
 
@@ -87,7 +87,6 @@ class Todo extends Component {
     }
 
     onChangeTodo(e) {
-        console.log(this.state.list.data);
         this.setState({
             todo: {
                 value: e.target.value,
@@ -129,36 +128,29 @@ class Todo extends Component {
 
         const { userId, todo, description, priority, when } = body;
 
-        if (this.state.editMode.value) {
-            this.props.dispatch(updateAction(this.state.editMode.id, body))
-                .then(() => {
-                    console.log("Edit Mode");
-                    console.log(body, this.state.editMode);
-                    console.log(this.props.updated.data);
+        this.isValid(this.state.todo);
+        this.isValid(this.state.description);
 
-                    let tempData = this.state.list.data.map(el => el._id == this.state.editMode.id ?
-                        { ...el, userId, todo, description, priority, when } : el);
-
-                    console.log(tempData);
-                    console.log(this.state.list.data);
-                    this.resetForm(tempData);
-                })
-                .catch(() => {
-                });
-        }
-        else {
-            console.log("Create Mode");
-            console.log(body);
-            this.props.dispatch(createAction(body))
-                .then(() => {
-                    console.log(this.props.created.data);
-                    let tempData = [...this.state.list.data, this.props.created.data];
-                    console.log(tempData);
-                    console.log(this.state.list.data);
-                    this.resetForm(tempData);
-                })
-                .catch(() => {
-                });
+        if (this.state.todo.isValid && this.state.description.isValid) {
+            if (this.state.editMode.value) {
+                this.props.dispatch(updateAction(this.state.editMode.id, body))
+                    .then(() => {
+                        let tempData = this.state.list.data.map(el => el._id == this.state.editMode.id ?
+                            { ...el, userId, todo, description, priority, when } : el);
+                        this.resetForm(tempData);
+                    })
+                    .catch(() => {
+                    });
+            }
+            else {
+                this.props.dispatch(createAction(body))
+                    .then(() => {
+                        let tempData = [...this.state.list.data, this.props.created.data];
+                        this.resetForm(tempData);
+                    })
+                    .catch(() => {
+                    });
+            }
         }
     }
 
@@ -194,13 +186,18 @@ class Todo extends Component {
         });
     }
 
-    deleteTodo(e) {
-        console.log(e)
+    deleteTodo(todoId) {
+        this.props.dispatch(deleteAction(todoId))
+            .then(() => {
+                let tempData = this.state.list.data.filter(el => el._id !== todoId);
+                this.resetForm(tempData);
+            })
+            .catch(() => {
+            });
     }
 
     editTodo(todo) {
         window.scrollTo(0, 0);
-        console.log(todo);
         this.setState({
             todo: {
                 value: todo.title,
@@ -229,11 +226,16 @@ class Todo extends Component {
         });
     }
 
+    isValid(control) {
+        if (control.value === '') {
+            control.isValid = false;
+        }
+    };
+
     render() {
         const { isLoggedIn } = this.props;
         let todoList = [];
         if (this.state.list.data) {
-            console.log(this.props);
             todoList = this.state.list.data.map(
                 (d) => <TodoCard key={d._id} title={d.todo}
                     description={d.description}
@@ -247,7 +249,6 @@ class Todo extends Component {
         }
 
         if (!isLoggedIn) {
-            console.log(this.props);
             return <Navigate to="/login" />;
         }
         return (
@@ -302,7 +303,6 @@ class Todo extends Component {
                                         disabled
                                     />
                                     <span>
-                                        {this.state.when.isValid ? '' : <Alert severity="error">This field is required!</Alert>}
                                     </span>
                                 </span>
                                 <span className="span-form">
@@ -326,10 +326,16 @@ class Todo extends Component {
                         </CardActions>
                     </Card>
                 </span>
-                <div>
-                    {
-                        todoList
-                    }
+                <div className="todo-list">
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Grid container spacing={5}>
+                            <Grid item xs={12}>
+                                {
+                                    todoList
+                                }
+                            </Grid>
+                        </Grid>
+                    </Box>
                 </div>
             </div>
         );

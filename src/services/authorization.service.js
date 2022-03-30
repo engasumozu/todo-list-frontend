@@ -9,10 +9,8 @@ class AuthorizationService {
         return axios
             .post(API_URL + LOGIN, { email, password })
             .then((response) => {
-                console.log(response);
                 if (response.data.token) {
                     localStorage.setItem("user", JSON.stringify(response.data));
-                    console.log(JSON.parse(localStorage.getItem('user')))
                 }
                 return response.data;
             });

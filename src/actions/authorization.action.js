@@ -15,7 +15,6 @@ export const registerAction = (email, password) => (dispatch) => {
         .register(email, password)
         .then(
             (response) => {
-                console.log(response)
                 dispatch({
                     type: REGISTER_OK
                 });

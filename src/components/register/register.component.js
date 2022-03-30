@@ -84,9 +84,7 @@ class Register extends Component {
         this.isValid(this.state.password);
         this.isValid(this.state.passwordKey);
 
-        console.log(this.state);
         if (this.state.email.isValid && this.state.password.isValid && this.state.passwordKey.isValid) {
-            console.log("calling auth endpoint");
 
             const { dispatch, history } = this.props;
 
@@ -113,9 +111,6 @@ class Register extends Component {
                     });
                 });
         }
-        else {
-            console.log("form invalid");
-        }
     }
 
     isValid(control) {
@@ -126,7 +121,6 @@ class Register extends Component {
 
     render() {
         const { isLoggedIn, message } = this.props;
-        console.log(isLoggedIn)
         if (message === 'Created') {
             return <Navigate to="/login" />;
         }

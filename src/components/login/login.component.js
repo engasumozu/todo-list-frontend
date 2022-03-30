@@ -68,9 +68,7 @@ class Login extends Component {
     this.isValid(this.state.email);
     this.isValid(this.state.password);
 
-    console.log(this.state);
     if (this.state.email.isValid && this.state.password.isValid) {
-      console.log("calling auth endpoint");
 
       const { dispatch } = this.props;
 
@@ -84,9 +82,6 @@ class Login extends Component {
           });
         });
     }
-    else {
-      console.log("form invalid");
-    }
   }
 
   isValid(control) {
@@ -98,7 +93,6 @@ class Login extends Component {
   render() {
     const { isLoggedIn, message } = this.props;
     if (isLoggedIn) {
-      console.log(this.props);
       return <Navigate to="/todo" />;
     }
     return (
