@@ -22,7 +22,7 @@ import { Logout } from "@mui/icons-material";
 
 import { logoutAction } from "../../actions/authorization.action";
 import { clearMessage } from "../../actions/message.action";
-import { getAllAction, createAction } from "../../actions/todo.action";
+import { getAllAction, createAction, updateAction } from "../../actions/todo.action";
 
 import getDateNow from "../../utils/get-date-now.util";
 
@@ -54,13 +54,20 @@ class Todo extends Component {
                 touched: "",
                 isValid: true
             },
-            list: []
+            list: [],
+            editMode: {
+                value: false,
+                id: ""
+            }
         };
         this.logOut = this.logOut.bind(this);
         this.onChangeDescription = this.onChangeDescription.bind(this);
         this.onChangeTodo = this.onChangeTodo.bind(this);
         this.onChangePriority = this.onChangePriority.bind(this);
-        this.createTodo = this.createTodo.bind(this);
+        this.saveTodo = this.saveTodo.bind(this);
+        this.deleteTodo = this.deleteTodo.bind(this);
+        this.editTodo = this.editTodo.bind(this);
+        this.resetForm = this.resetForm.bind(this);
     };
 
     componentDidMount() {
@@ -110,7 +117,7 @@ class Todo extends Component {
         });
     }
 
-    createTodo(e) {
+    saveTodo(e) {
         e.preventDefault();
         let body = {
             userId: this.props.user.user._id,
@@ -119,43 +126,107 @@ class Todo extends Component {
             priority: this.state.priority.value,
             when: this.state.when.value
         }
-        this.props.dispatch(createAction(body))
-            .then(() => {
-                console.log(this.props.created.data);
-                let tempData = [...this.state.list.data];
-                console.log(tempData);
-                tempData.push(this.props.created.data);
-                console.log(tempData);
-                console.log(this.state.list.data);
-                this.setState({
-                    list: {
-                        data: tempData
-                    },
-                    todo: {
-                        value: "",
-                        touched: "",
-                        isValid: true
-                    },
-                    description: {
-                        value: "",
-                        touched: "",
-                        isValid: true
-                    },
-                    priority: {
-                        value: 1,
-                        touched: "",
-                        isValid: true
-                    },
-                    when: {
-                        value: getDateNow(),
-                        touched: "",
-                        isValid: true
-                    }
+
+        const { userId, todo, description, priority, when } = body;
+
+        if (this.state.editMode.value) {
+            this.props.dispatch(updateAction(this.state.editMode.id, body))
+                .then(() => {
+                    console.log("Edit Mode");
+                    console.log(body, this.state.editMode);
+                    console.log(this.props.updated.data);
+
+                    let tempData = this.state.list.data.map(el => el._id == this.state.editMode.id ?
+                        { ...el, userId, todo, description, priority, when } : el);
+
+                    console.log(tempData);
+                    console.log(this.state.list.data);
+                    this.resetForm(tempData);
+                })
+                .catch(() => {
                 });
-                console.log(this.state.list.data);
-            })
-            .catch(() => {
-            });
+        }
+        else {
+            console.log("Create Mode");
+            console.log(body);
+            this.props.dispatch(createAction(body))
+                .then(() => {
+                    console.log(this.props.created.data);
+                    let tempData = [...this.state.list.data, this.props.created.data];
+                    console.log(tempData);
+                    console.log(this.state.list.data);
+                    this.resetForm(tempData);
+                })
+                .catch(() => {
+                });
+        }
+    }
+
+    resetForm(newData = this.state.list.data) {
+        this.setState({
+            list: {
+                data: newData
+            },
+            todo: {
+                value: "",
+                touched: "",
+                isValid: true
+            },
+            description: {
+                value: "",
+                touched: "",
+                isValid: true
+            },
+            priority: {
+                value: 1,
+                touched: "",
+                isValid: true
+            },
+            when: {
+                value: getDateNow(),
+                touched: "",
+                isValid: true
+            },
+            editMode: {
+                value: false,
+                id: ""
+            }
+        });
+    }
+
+    deleteTodo(e) {
+        console.log(e)
+    }
+
+    editTodo(todo) {
+        window.scrollTo(0, 0);
+        console.log(todo);
+        this.setState({
+            todo: {
+                value: todo.title,
+                touched: "",
+                isValid: true
+            },
+            description: {
+                value: todo.description,
+                touched: "",
+                isValid: true
+            },
+            priority: {
+                value: todo.priority,
+                touched: "",
+                isValid: true
+            },
+            when: {
+                value: getDateNow(),
+                touched: "",
+                isValid: true
+            },
+            editMode: {
+                value: true,
+                id: todo.id
+            }
+        });
     }
 
     render() {
@@ -168,6 +239,9 @@ class Todo extends Component {
                     description={d.description}
                     priority={d.priority}
                     when={d.when}
+                    id={d._id}
+                    onDelete={this.deleteTodo}
+                    onEdit={this.editTodo}
                 />
             );
         }
@@ -200,7 +274,7 @@ class Todo extends Component {
                 <span className="span-out">
                     <Card sx={{ maxWidth: 500 }}>
                         <CardContent color="primary">
-                            <form onSubmit={this.createTodo} ref={(c => this.form = c)}>
+                            <form onSubmit={this.saveTodo} ref={(c => this.form = c)}>
                                 <span className="span-form">
                                     <TextField id="title" label="Title"
                                         variant="standard"
@@ -252,7 +326,11 @@ class Todo extends Component {
                         </CardActions>
                     </Card>
                 </span>
-                {todoList}
+                <div>
+                    {
+                        todoList
+                    }
+                </div>
             </div>
         );
     }
@@ -261,12 +339,12 @@ class Todo extends Component {
 function mapStateToProps(state) {
     const { user, isLoggedIn } = state.authorization;
     const { message } = state.message;
-    const { data, created } = state.todo
+    const { data, created, deleted, updated } = state.todo
     return {
         isLoggedIn,
         user,
         message,
-        data, created
+        data, created, deleted, updated
     };
 }
 export default connect(mapStateToProps)(Todo);

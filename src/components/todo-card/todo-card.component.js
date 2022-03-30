@@ -15,8 +15,8 @@ const TodoCard = (props) => {
     const navigate = useNavigate();
     const color = props.priority === "1" ? red : (props.priority === "2" ? yellow : green);
 
-    var date = new Date(props.when);
-    var dateNow = getDateNow(date);
+    let date = new Date(props.when);
+    let dateNow = getDateNow(date);
 
     return (
         <>
@@ -34,8 +34,8 @@ const TodoCard = (props) => {
                         </Typography>
                     </CardContent>
                     <CardActions>
-                        <Button variant="outlined" color="primary">Edit</Button>
-                        <Button variant="outlined" color="error">Delete</Button>
+                        <Button variant="outlined" color="primary" onClick={() => props.onEdit(props)}>Edit</Button>
+                        <Button variant="outlined" color="error" onClick={() => props.onDelete(props.id)}>Delete</Button>
                         <Button variant="outlined" disabled color="error">{dateNow}</Button>
                     </CardActions>
                 </Card>

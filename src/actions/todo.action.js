@@ -58,3 +58,49 @@ export const createAction = (body) => (dispatch) => {
                 return Promise.reject;
             });
 }
+
+export const deleteAction = (id) => (dispatch) => {
+    return TodoService
+        .delete(id)
+        .then((response) => {
+            dispatch({
+                type: TODO_DELETE,
+                payload: response
+            });
+            return Promise.resolve();
+        },
+        (error) => {
+            const message = error.response.data.message ?? "Error";
+                dispatch({
+                    type: TODO_DELETE_FAIL
+                });
+                dispatch({
+                    type: SET_MESSAGE,
+                    payload: message
+                });
+                return Promise.reject;
+        });
+}
+
+export const updateAction = (id, body) => (dispatch) => {
+    return TodoService
+        .update(id, body)
+        .then((response) => {
+            dispatch({
+                type: TODO_UPDATE,
+                payload: response
+            });
+            return Promise.resolve();
+        },
+        (error) => {
+            const message = error.response.data.message ?? "Error";
+                dispatch({
+                    type: TODO_UPDATE_FAIL
+                });
+                dispatch({
+                    type: SET_MESSAGE,
+                    payload: message
+                });
+                return Promise.reject;
+        });
+}

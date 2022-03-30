@@ -9,7 +9,7 @@ import {
     TODO_UPDATE_FAIL
 } from "../utils/type.util";
 
-const initialState = { 
+const initialState = {
     data: [],
     created: {},
     updated: {},
@@ -38,6 +38,26 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 created: {},
+            };
+        case TODO_DELETE:
+            return {
+                ...state,
+                deleted: payload,
+            };
+        case TODO_DELETE_FAIL:
+            return {
+                ...state,
+                created: {},
+            };
+        case TODO_UPDATE:
+            return {
+                ...state,
+                updated: payload,
+            };
+        case TODO_UPDATE_FAIL:
+            return {
+                ...state,
+                updated: {},
             };
         default:
             return state;
