@@ -33,11 +33,6 @@ class App extends Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <div>
-              <p>
-                {process.env.REACT_APP_API_ENDPOINT} ?
-              </p>
-            </div>
             <div className="container mt-3">
               <Routes>
                 <Route path="/" element={<Todo></Todo>} />
